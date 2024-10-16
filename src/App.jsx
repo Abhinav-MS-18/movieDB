@@ -1,11 +1,16 @@
 import React from "react";
-import Movies from "./Movies";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Movies from "./Movies"; // Your movie display component
+import Signup from "./Signup"; // Your signup component
 
 function App() {
   return (
-    <div className="App">
-      <Movies />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Movies />} />
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
+    </Router>
   );
 }
 
