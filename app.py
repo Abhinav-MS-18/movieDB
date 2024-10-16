@@ -12,12 +12,17 @@ db = client['mydb']
 users_collection = db['users']  # Users collection
 
 # Movies endpoint
+
+
 @app.route('/movies', methods=['GET'])
 def get_movies():
-    movies = list(db['sample'].find({}, {'_id': 0}))  # Exclude _id from the response
+    # Exclude _id from the response
+    movies = list(db['sample'].find({}, {'_id': 0}))
     return jsonify(movies)
 
 # Signup endpoint
+
+
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
@@ -56,6 +61,8 @@ def signup():
     return jsonify({"message": "User registered successfully!"}), 201
 
 # Sign In endpoint
+
+
 @app.route('/signin', methods=['POST'])
 def signin():
     data = request.get_json()
@@ -68,10 +75,37 @@ def signin():
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    if user["password"] != password:  # In a real-world app, you should hash the password and check
+    if user["password"] != password:
         return jsonify({"error": "Invalid password"}), 403
 
-    return jsonify({"message": "Sign in successful!", "user": {"name": user["name"], "email": user["email"]}}), 200
+    return jsonify({
+        "message": "Sign in successful!",
+        "user": {
+            "name": user["name"],
+            "email": user["email"],
+            "genres": user.get("genres", []),  # Retrieve existing genres
+        }
+    }), 200
+
+# Endpoint to update user genres
+
+@app.route('/update-genres', methods=['POST'])
+def update_genres():
+    data = request.get_json()
+    email = data.get('email')
+    genres = data.get('genres')
+
+    # Check if the user exists
+    user = users_collection.find_one({"email": email})
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Update the user's preferred genres
+    users_collection.update_one({"email": email}, {"$set": {"genres": genres}})
+
+    return jsonify({"message": "Genres updated successfully!"}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)
