@@ -12,17 +12,18 @@ db = client['mydb']
 users_collection = db['users']  # Users collection
 
 # Movies endpoint
-
-
 @app.route('/movies', methods=['GET'])
 def get_movies():
-    # Exclude _id from the response
-    movies = list(db['sample'].find({}, {'_id': 0}))
+    movies = list(db['sample'].find({}, {'_id': 0}))  # Exclude _id from the response
     return jsonify(movies)
 
-# Signup endpoint
+# Genres endpoint
+@app.route('/genres', methods=['GET'])
+def get_genres():
+    genres = db['sample'].distinct('genres')  # Fetch distinct genres from the 'sample' movie collection
+    return jsonify(genres), 200
 
-
+# Sign Up endpoint
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
@@ -61,8 +62,6 @@ def signup():
     return jsonify({"message": "User registered successfully!"}), 201
 
 # Sign In endpoint
-
-
 @app.route('/signin', methods=['POST'])
 def signin():
     data = request.get_json()
@@ -88,7 +87,6 @@ def signin():
     }), 200
 
 # Endpoint to update user genres
-
 @app.route('/update-genres', methods=['POST'])
 def update_genres():
     data = request.get_json()
@@ -106,6 +104,18 @@ def update_genres():
 
     return jsonify({"message": "Genres updated successfully!"}), 200
 
+# Endpoint to fetch user genres
+@app.route('/user-genres', methods=['POST'])
+def get_user_genres():
+    data = request.get_json()
+    email = data.get('email')
+
+    # Find the user by email and return their selected genres
+    user = users_collection.find_one({"email": email})
+    if user:
+        return jsonify(user.get("genres", [])), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)

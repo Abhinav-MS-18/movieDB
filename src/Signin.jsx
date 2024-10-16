@@ -1,21 +1,28 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 
 const SignIn = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [genres, setGenres] = useState([]); // State for genres
+  const [genres, setGenres] = useState([]); // State for user-selected genres
+  const [availableGenres, setAvailableGenres] = useState([]); // State for available genres
   const [isGenreSelection, setIsGenreSelection] = useState(false); // State for showing genre selection
-  const navigate = useNavigate(); // Use navigate for redirection
+  const navigate = useNavigate(); // For redirection
 
-  // List of available genres
-  const availableGenres = ["Action", "Comedy", "Drama", "Fantasy", "Horror", "Thriller", "Sci-Fi"];
+  // Fetch available genres from backend
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/genres")
+      .then((response) => {
+        setAvailableGenres(response.data); // Set the genres from backend
+      })
+      .catch((error) => {
+        console.error("Error fetching genres:", error);
+      });
+  }, []);
 
   // Handle form field changes
   const handleChange = (e) => {
@@ -25,44 +32,52 @@ const SignIn = () => {
     });
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Submit form data to backend
-    axios
-      .post("http://localhost:5000/signin", formData)
-      .then((response) => {
-        setSuccessMessage(response.data.message);
-        setErrorMessage("");
-        // Prompt user to select genres
-        setIsGenreSelection(true);
-      })
-      .catch((error) => {
-        setErrorMessage(error.response?.data?.error || "Something went wrong");
-      });
-  };
-
   // Handle genre selection
   const handleGenreChange = (genre) => {
-    setGenres((prevGenres) => 
-      prevGenres.includes(genre) ? prevGenres.filter(g => g !== genre) : [...prevGenres, genre]
+    setGenres((prevGenres) =>
+      prevGenres.includes(genre)
+        ? prevGenres.filter((g) => g !== genre)
+        : [...prevGenres, genre]
     );
   };
 
-  // Handle genre submission
-  const handleGenreSubmit = () => {
+  // Handle form submission (sign-in logic)
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
     axios
-      .post("http://localhost:5000/update-genres", {
-        email: formData.email,
-        genres: genres,
-      })
-      .then(() => {
-        navigate("/"); // Redirect to the home page
+      .post("http://localhost:5000/signin", formData)
+      .then((response) => {
+        console.log("Sign in successful:", response.data);
+        setIsGenreSelection(true); // Show genre selection after successful sign-in
+        localStorage.setItem("user", JSON.stringify(response.data.user)); // Save user data to localStorage
       })
       .catch((error) => {
-        setErrorMessage(error.response?.data?.error || "Something went wrong");
+        console.error(
+          "Error during sign in:",
+          error.response?.data?.error || "Something went wrong"
+        );
       });
+  };
+
+  // Handle genre save and redirection to movies page
+  const handleSaveGenres = () => {
+    // Save genres to the backend
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user && user.email) {
+      axios
+        .post("http://localhost:5000/update-genres", {
+          email: user.email,
+          genres: genres,
+        })
+        .then(() => {
+          // After saving, redirect to the movies page
+          navigate("/movies"); // Navigate to the movies page
+        })
+        .catch((error) => {
+          console.error("Error updating genres:", error);
+        });
+    }
   };
 
   return (
@@ -70,7 +85,7 @@ const SignIn = () => {
       <h1 className="text-4xl font-bold text-center mb-8">Sign In</h1>
       <form onSubmit={handleSubmit} className="max-w-md mx-auto">
         <div className="mb-4">
-          <label className="block text-sm font-bold mb-2">Email</label>
+          <label className="block mb-2">Email</label>
           <input
             type="email"
             name="email"
@@ -81,7 +96,7 @@ const SignIn = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-bold mb-2">Password</label>
+          <label className="block mb-2">Password</label>
           <input
             type="password"
             name="password"
@@ -91,49 +106,42 @@ const SignIn = () => {
             required
           />
         </div>
-        {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
-        {successMessage && (
-          <p className="text-green-500 mb-4">{successMessage}</p>
-        )}
+
         <button
           type="submit"
-          className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="w-full bg-blue-500 text-white p-3 rounded"
         >
           Sign In
         </button>
       </form>
 
-      {/* Link to signup if the user does not have an account */}
-      <div className="mt-4 text-center">
-        <p className="text-sm">
-          Don't have an account?{" "}
-          <Link to="/signup" className="text-blue-500 hover:underline">
-            Sign Up
-          </Link>
-        </p>
-      </div>
-
-      {/* Genre Selection */}
+      {/* Genre selection after sign-in */}
       {isGenreSelection && (
         <div className="mt-8">
-          <h2 className="text-3xl font-bold text-center mb-4">Select Your Preferred Genres</h2>
-          <div className="flex flex-wrap justify-center">
-            {availableGenres.map((genre) => (
-              <label key={genre} className="mr-4">
+          <h2 className="text-3xl font-bold mb-4">
+            Select Your Preferred Genres
+          </h2>
+          <div className="flex flex-wrap">
+            {availableGenres.map((genre, index) => (
+              <label key={index} className="mr-4 mb-4">
                 <input
                   type="checkbox"
                   value={genre}
+                  checked={genres.includes(genre)}
                   onChange={() => handleGenreChange(genre)}
+                  className="mr-2"
                 />
                 {genre}
               </label>
             ))}
           </div>
+
+          {/* Add Save Genres Button */}
           <button
-            onClick={handleGenreSubmit}
-            className="mt-4 p-2 bg-green-500 text-white rounded hover:bg-green-600"
+            onClick={handleSaveGenres}
+            className="mt-4 p-3 bg-green-500 text-white rounded hover:bg-green-600"
           >
-            Save Genres
+            Save Genres and View Movies
           </button>
         </div>
       )}

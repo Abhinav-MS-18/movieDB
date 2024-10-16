@@ -1,19 +1,19 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Movies from "./Movies"; // Your movie display component
-import Signup from "./Signup"; // Your signup component
-import Signin from "./Signin"; // Your signin component
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import SignIn from "./SignIn"; // Make sure this path is correct
+import Movies from "./Movies"; // Make sure this path is correct
+import Signup from "./Signup"; // Make sure this path is correct
 
-function App() {
+const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Movies />} />
+        <Route path="/" element={<SignIn />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/signin" element={<Signin />} />
+        <Route path="/movies" element={<Movies />} />
       </Routes>
     </Router>
   );
-}
+};
 
 export default App;

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom"; // Import Link from react-router-dom
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -10,9 +11,7 @@ const Signup = () => {
     password: "",
     confirmPassword: "",
   });
-
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const navigate = useNavigate(); // For redirection
 
   // Handle form field changes
   const handleChange = (e) => {
@@ -26,49 +25,32 @@ const Signup = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log("Form Data:", formData); // Check form data before sending
-
-    // Check if passwords match
-    if (formData.password !== formData.confirmPassword) {
-      setErrorMessage("Passwords do not match");
-      return;
-    }
-
-    // Ensure age is a valid number
-    if (!formData.age || isNaN(formData.age)) {
-      setErrorMessage("Age must be a valid number");
-      return;
-    }
-
-    // Submit form data to backend
     axios
-      .post("http://localhost:5000/signup", formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
+      .post("http://localhost:5000/signup", formData)
       .then((response) => {
-        setSuccessMessage("Account created successfully!");
-        setErrorMessage("");
-        setFormData({
-          name: "",
-          email: "",
-          age: "",
-          password: "",
-          confirmPassword: "",
-        });
+        console.log("User registered:", response.data);
+        // Redirect to sign in page after successful signup
+        navigate("/signin");
       })
       .catch((error) => {
-        setErrorMessage(error.response?.data?.error || "Something went wrong");
+        console.error(
+          "Error during signup:",
+          error.response?.data?.error || "Something went wrong"
+        );
       });
   };
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-4xl font-bold text-center mb-8">Create Account</h1>
+      {/* <Button variant="vishal">Sign In</Button>
+      <Avatar className='size-56'>
+      <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+      <AvatarFallback>CN</AvatarFallback>
+    </Avatar> */}
+      <h1 className="text-4xl font-bold text-center mb-8">Sign Up</h1>
       <form onSubmit={handleSubmit} className="max-w-md mx-auto">
         <div className="mb-4">
-          <label className="block text-sm font-bold mb-2">Name</label>
+          <label className="block mb-2">Name</label>
           <input
             type="text"
             name="name"
@@ -79,7 +61,7 @@ const Signup = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-bold mb-2">Email</label>
+          <label className="block mb-2">Email</label>
           <input
             type="email"
             name="email"
@@ -90,7 +72,7 @@ const Signup = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-bold mb-2">Age</label>
+          <label className="block mb-2">Age</label>
           <input
             type="number"
             name="age"
@@ -101,7 +83,7 @@ const Signup = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-bold mb-2">Password</label>
+          <label className="block mb-2">Password</label>
           <input
             type="password"
             name="password"
@@ -112,9 +94,7 @@ const Signup = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-bold mb-2">
-            Confirm Password
-          </label>
+          <label className="block mb-2">Confirm Password</label>
           <input
             type="password"
             name="confirmPassword"
@@ -124,27 +104,13 @@ const Signup = () => {
             required
           />
         </div>
-        {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
-        {successMessage && (
-          <p className="text-green-500 mb-4">{successMessage}</p>
-        )}
         <button
           type="submit"
-          className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="w-full bg-blue-500 text-white p-3 rounded"
         >
-          Create Account
+          Sign Up
         </button>
       </form>
-
-      {/* Link to sign in if the user already has an account */}
-      <div className="mt-4 text-center">
-        <p className="text-sm">
-          Already have an account?{" "}
-          <Link to="/Signin" className="text-blue-500 hover:underline">
-            Sign In
-          </Link>
-        </p>
-      </div>
     </div>
   );
 };
