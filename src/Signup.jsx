@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -134,6 +135,16 @@ const Signup = () => {
           Create Account
         </button>
       </form>
+
+      {/* Link to sign in if the user already has an account */}
+      <div className="mt-4 text-center">
+        <p className="text-sm">
+          Already have an account?{" "}
+          <Link to="/Signin" className="text-blue-500 hover:underline">
+            Sign In
+          </Link>
+        </p>
+      </div>
     </div>
   );
 };

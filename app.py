@@ -11,7 +11,7 @@ client = MongoClient('mongodb://localhost:27017/')
 db = client['mydb']
 users_collection = db['users']  # Users collection
 
-# Movies endpoint (for existing movie functionality)
+# Movies endpoint
 @app.route('/movies', methods=['GET'])
 def get_movies():
     movies = list(db['sample'].find({}, {'_id': 0}))  # Exclude _id from the response
@@ -21,13 +21,13 @@ def get_movies():
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
-    print("Received Data:", data)  # Add this line to log the incoming data
+    print("Received Data:", data)  # Log the incoming data
 
     name = data.get('name')
     email = data.get('email')
     age = data.get('age')
     password = data.get('password')
-    confirm_password = data.get('confirm_password')
+    confirm_password = data.get('confirmPassword')
 
     # Basic validation
     if not (name and email and age and password and confirm_password):
@@ -54,6 +54,24 @@ def signup():
     })
 
     return jsonify({"message": "User registered successfully!"}), 201
+
+# Sign In endpoint
+@app.route('/signin', methods=['POST'])
+def signin():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+
+    # Check if the user exists
+    user = users_collection.find_one({"email": email})
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    if user["password"] != password:  # In a real-world app, you should hash the password and check
+        return jsonify({"error": "Invalid password"}), 403
+
+    return jsonify({"message": "Sign in successful!", "user": {"name": user["name"], "email": user["email"]}}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
