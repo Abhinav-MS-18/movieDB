@@ -78,7 +78,7 @@ def signin():
     user = users_collection.find_one({"email": email})
 
     if not user:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"error": "User not found signin"}), 404
 
     if user["password"] != password:
         return jsonify({"error": "Invalid password"}), 403
@@ -103,7 +103,7 @@ def update_genres():
 
     user = users_collection.find_one({"email": email})
     if not user:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"error": "User not found update genre"}), 404
 
     # Update the user's preferred genres
     users_collection.update_one({"email": email}, {"$set": {"genres": genres}})
@@ -122,10 +122,9 @@ def get_user_genres():
     if user:
         return jsonify(user.get("genres", [])), 200
     else:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"error": "User not found user genre"}), 404
 
 # Endpoint to fetch user watchlist
-
 
 @app.route('/user-watchlist', methods=['POST'])
 def get_user_watchlist():
@@ -135,7 +134,7 @@ def get_user_watchlist():
     user = users_collection.find_one(
         {"email": email}, {"_id": 0, "watchlist": 1})
     if not user:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"error": "User not found user watchlist"}), 404
 
     return jsonify({"watchlist": user.get("watchlist", [])}), 200
 
@@ -150,7 +149,7 @@ def add_to_watchlist():
 
     user = users_collection.find_one({"email": email})
     if not user:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"error": "User not found add watchlist"}), 404
 
     users_collection.update_one(
         {"email": email}, {"$addToSet": {"watchlist": movie}})
@@ -167,7 +166,7 @@ def remove_from_watchlist():
 
     user = users_collection.find_one({"email": email})
     if not user:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"error": "User not found remove watchlist"}), 404
 
     users_collection.update_one(
         {"email": email}, {"$pull": {"watchlist": {"title": movie["title"]}}})

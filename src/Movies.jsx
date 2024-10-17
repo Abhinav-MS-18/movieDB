@@ -6,6 +6,7 @@ import Pagination from "./Pagination";
 
 const Movies = () => {
   const [movies, setMovies] = useState([]);
+  const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
   const [userGenres, setUserGenres] = useState([]);
   const [pageNo, setPageNo] = useState(1);
   const moviesPerPage = 30;
@@ -67,7 +68,7 @@ const Movies = () => {
       <div className="flex flex-wrap gap-10 justify-evenly">
         {currentMovies.length > 0 ? (
           currentMovies.map((movie, index) => (
-            <Card key={index} movie={movie} />
+            <Card key={index} movie={movie} userEmail={userEmail} />
           ))
         ) : (
           <div>No movies available for the selected genres.</div>
