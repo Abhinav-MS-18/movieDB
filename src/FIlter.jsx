@@ -41,7 +41,7 @@ const Filter = () => {
         })
         .then(() => {
           // Navigate to Movies page with selected genres as state
-          navigate("/movies", { state: { selectedGenres } });
+          navigate("/", { state: { selectedGenres } });
         })
         .catch((error) => {
           console.error("Error updating genres:", error);
@@ -52,26 +52,31 @@ const Filter = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-4xl font-bold text-center mb-8">Filter by Genre</h1>
-      <div className="flex flex-wrap">
+      <div className="flex flex-wrap justify-center gap-4">
         {availableGenres.map((genre, index) => (
-          <label key={index} className="mr-4 mb-4">
+          <label
+            key={index}
+            className="flex items-center space-x-2 bg-gray-100 p-2 rounded shadow"
+          >
             <input
               type="checkbox"
               value={genre}
               checked={selectedGenres.includes(genre)}
               onChange={() => handleGenreChange(genre)}
-              className="mr-2"
+              className="form-checkbox h-5 w-5 text-blue-600"
             />
-            {genre}
+            <span className="text-lg">{genre}</span>
           </label>
         ))}
       </div>
-      <button
-        onClick={handleFilter}
-        className="mt-4 p-3 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Apply Filter
-      </button>
+      <div className="flex justify-center mt-8">
+        <button
+          onClick={handleFilter}
+          className="p-3 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Apply Filter
+        </button>
+      </div>
     </div>
   );
 };

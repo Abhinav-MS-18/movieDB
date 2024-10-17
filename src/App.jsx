@@ -21,9 +21,8 @@ const App = () => {
       {isLoggedIn && <Navbar setIsLoggedIn={setIsLoggedIn} />}{" "}
       {/* Conditionally render Navbar if logged in */}
       <Routes>
-        <Route path="/" element={<SignIn setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/" element={<Movies />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/movies" element={<Movies />} />
         <Route path="/filter" element={<Filter />} /> {/* New Filter route */}
         <Route path="/watchlist" element={<Watchlist />} />
         <Route

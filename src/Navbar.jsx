@@ -1,11 +1,4 @@
 import React from "react";
-import {
-  Menubar,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarTrigger,
-} from "@/components/ui/menubar";
 import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 
 const Navbar = ({ setIsLoggedIn }) => {
@@ -20,19 +13,34 @@ const Navbar = ({ setIsLoggedIn }) => {
 
   return (
     <>
-      <Menubar>
-        <MenubarMenu>
-          <MenubarTrigger onClick={() => navigate("/")}>Home</MenubarTrigger>
-          <MenubarTrigger onClick={() => navigate("/movies")}>Movies</MenubarTrigger>
-          <MenubarTrigger onClick={() => navigate("/filter")}>Filter</MenubarTrigger>
-          <MenubarTrigger onClick={() => navigate("/watchlist")}>My Watchlist</MenubarTrigger>
-          
-          <MenubarSeparator />
-
-          {/* Logout Button */}
-          <MenubarTrigger onClick={handleLogout}>Logout</MenubarTrigger>
-        </MenubarMenu>
-      </Menubar>
+      <nav className="bg-gray-900 text-white py-4">
+        <div className="container mx-auto flex justify-center space-x-8 text-lg">
+          <button
+            className="px-4 py-2 hover:bg-gray-700 rounded"
+            onClick={() => navigate("/")}
+          >
+            Home
+          </button>
+          <button
+            className="px-4 py-2 hover:bg-gray-700 rounded"
+            onClick={() => navigate("/filter")}
+          >
+            Filter
+          </button>
+          <button
+            className="px-4 py-2 hover:bg-gray-700 rounded"
+            onClick={() => navigate("/watchlist")}
+          >
+            My Watchlist
+          </button>
+          <button
+            className="px-4 py-2 hover:bg-gray-700 rounded"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </div>
+      </nav>
     </>
   );
 };

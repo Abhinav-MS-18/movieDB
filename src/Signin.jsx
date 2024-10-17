@@ -1,77 +1,71 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const SignIn = ({ setIsLoggedIn }) => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-  const navigate = useNavigate(); // For redirection
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  // Handle form field changes
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  // Handle form submission (sign-in logic)
-  const handleSubmit = async (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
-
     try {
-      const response = await axios.post(
-        "http://localhost:5000/signin",
-        formData
-      );
-      console.log("Sign in successful:", response.data);
-      localStorage.setItem("user", JSON.stringify(response.data.user)); // Save user data to localStorage
-      setIsLoggedIn(true); // Update login status
-      navigate("/movies"); // Navigate to the movies page after successful sign-in
-    } catch (error) {
-      console.error(
-        "Error during sign in:",
-        error.response?.data?.error || "Something went wrong"
-      );
+      const response = await axios.post("http://localhost:5000/signin", {
+        email,
+        password,
+      });
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      setIsLoggedIn(true);
+      navigate("/");
+    } catch (err) {
+      setError("Invalid email or password");
     }
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-4xl font-bold text-center mb-8">Sign In</h1>
-      <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-        <div className="mb-4">
-          <label className="block mb-2">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-2">Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-3 rounded"
-        >
-          Sign In
-        </button>
-      </form>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <h1 className="text-2xl font-bold mb-6 text-center">Sign In</h1>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+        <form onSubmit={handleSignIn}>
+          <div className="mb-4">
+            <label className="block text-gray-700 mb-2">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-3 border rounded"
+              required
+            />
+          </div>
+          <div className="mb-6">
+            <label className="block text-gray-700 mb-2">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 border rounded"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full p-3 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Sign In
+          </button>
+        </form>
+        <p className="mt-4 text-center">
+          Don't have an account?{" "}
+          <button
+            onClick={() => navigate("/signup")}
+            className="text-blue-500 hover:underline"
+          >
+            Sign Up
+          </button>
+        </p>
+      </div>
     </div>
   );
 };

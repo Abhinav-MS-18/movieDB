@@ -1,7 +1,6 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -11,9 +10,9 @@ const Signup = () => {
     password: "",
     confirmPassword: "",
   });
-  const navigate = useNavigate(); // For redirection
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  // Handle form field changes
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -21,96 +20,98 @@ const Signup = () => {
     });
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
-
-    axios
-      .post("http://localhost:5000/signup", formData)
-      .then((response) => {
-        console.log("User registered:", response.data);
-        // Redirect to sign in page after successful signup
-        navigate("/signin");
-      })
-      .catch((error) => {
-        console.error(
-          "Error during signup:",
-          error.response?.data?.error || "Something went wrong"
-        );
-      });
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+    try {
+      await axios.post("http://localhost:5000/signup", formData);
+      navigate("/signin");
+    } catch (err) {
+      setError("Error signing up");
+    }
   };
 
   return (
-    <div className="container mx-auto p-4">
-      {/* <Button variant="vishal">Sign In</Button>
-      <Avatar className='size-56'>
-      <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-      <AvatarFallback>CN</AvatarFallback>
-    </Avatar> */}
-      <h1 className="text-4xl font-bold text-center mb-8">Sign Up</h1>
-      <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-        <div className="mb-4">
-          <label className="block mb-2">Name</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-2">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-2">Age</label>
-          <input
-            type="number"
-            name="age"
-            value={formData.age}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-2">Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block mb-2">Confirm Password</label>
-          <input
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-3 rounded"
-        >
-          Sign Up
-        </button>
-      </form>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <h1 className="text-2xl font-bold mb-6 text-center">Sign Up</h1>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+        <form onSubmit={handleSignup}>
+          <div className="mb-4">
+            <label className="block text-gray-700 mb-2">Name</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full p-3 border rounded"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 mb-2">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full p-3 border rounded"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 mb-2">Age</label>
+            <input
+              type="number"
+              name="age" min="0"
+              value={formData.age}
+              onChange={handleChange}
+              className="w-full p-3 border rounded"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 mb-2">Password</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full p-3 border rounded"
+              required
+            />
+          </div>
+          <div className="mb-6">
+            <label className="block text-gray-700 mb-2">Confirm Password</label>
+            <input
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className="w-full p-3 border rounded"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            className="w-full p-3 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Sign Up
+          </button>
+        </form>
+        <p className="mt-4 text-center">
+          Already have an account?{" "}
+          <button
+            onClick={() => navigate("/signin")}
+            className="text-blue-500 hover:underline"
+          >
+            Sign In
+          </button>
+        </p>
+      </div>
     </div>
   );
 };
