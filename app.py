@@ -10,13 +10,13 @@ CORS(app)
 client = MongoClient('mongodb://localhost:27017/')
 db = client['mydb']
 users_collection = db['users']  # Users collection
-
+collection = db['sample1']
 # Movies endpoint
 
 
 @app.route('/movies', methods=['GET'])
 def get_movies():
-    movies = list(db['sample'].find({}, {'_id': 0}))
+    movies = list(collection.find({}, {'_id': 0}))
     return jsonify(movies)
 
 # Genres endpoint
@@ -24,7 +24,7 @@ def get_movies():
 
 @app.route('/genres', methods=['GET'])
 def get_genres():
-    genres = db['sample'].distinct('genres')
+    genres = collection.distinct('genres')
     return jsonify(genres), 200
 
 # Sign Up endpoint
