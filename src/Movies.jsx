@@ -3,13 +3,15 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import Card from "./Moviecard";
 import Pagination from "./Pagination";
+import ClipLoader from "react-spinners/ClipLoader"  ;
 
 const Movies = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [movies, setMovies] = useState([]);
   const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
   const [userGenres, setUserGenres] = useState([]);
   const [pageNo, setPageNo] = useState(1);
-  const moviesPerPage = 30;
+  const moviesPerPage = 32;
   const location = useLocation();
   const selectedGenres = location.state?.selectedGenres || []; // Get selected genres from state
 
@@ -42,9 +44,11 @@ const Movies = () => {
       .get("http://localhost:5000/movies")
       .then((response) => {
         setMovies(response.data);
+        setIsLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching movies:", error);
+        setIsLoading(false);
       });
   }, []);
 
@@ -64,17 +68,33 @@ const Movies = () => {
 
   return (
     <div className="p-10">
-      <div className="text-5xl font-bold text-center mb-8">Movies</div>
-      <div className="flex flex-wrap gap-10 justify-evenly">
-        {currentMovies.length > 0 ? (
-          currentMovies.map((movie, index) => (
-            <Card key={index} movie={movie} userEmail={userEmail} />
-          ))
-        ) : (
-          <div>No movies available for the selected genres.</div>
-        )}
-      </div>
-      <Pagination prevPage={prevPage} nextPage={nextPage} pageNo={pageNo} />
+      {isLoading && (
+        <div className="flex justify-center items-center h-screen">
+          <ClipLoader
+            color={"#000"} // Attractive blue color for loading spinner
+            loading={isLoading}
+            size={250} // Increased size of the spinner
+            width={500} // Increased width of the spinner
+            aria-label="Loading Spinner"
+            data-testid="loader"
+          />
+        </div>
+      )}
+      {!isLoading && (
+        <>
+          <div className="text-5xl font-bold text-center mb-8">Movies</div>
+          <div className="flex flex-wrap gap-10 justify-evenly">
+            {currentMovies.length > 0 ? (
+              currentMovies.map((movie, index) => (
+                <Card key={index} movie={movie} userEmail={userEmail} />
+              ))
+            ) : (
+              <div className="text-center text-lg text-gray-500">No movies available for the selected genres.</div>
+            )}
+          </div>
+          <Pagination prevPage={prevPage} nextPage={nextPage} pageNo={pageNo} />
+        </>
+      )}
     </div>
   );
 };

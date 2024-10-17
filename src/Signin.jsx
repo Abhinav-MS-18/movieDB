@@ -33,6 +33,7 @@ const SignIn = ({ setIsLoggedIn }) => {
             <label className="block text-gray-700 mb-2">Email</label>
             <input
               type="email"
+              name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full p-3 border rounded"
@@ -43,6 +44,7 @@ const SignIn = ({ setIsLoggedIn }) => {
             <label className="block text-gray-700 mb-2">Password</label>
             <input
               type="password"
+              name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full p-3 border rounded"

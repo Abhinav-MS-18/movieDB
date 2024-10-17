@@ -1,51 +1,31 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { handleToggleWatchlist } from "./Moviecard";
+import React from "react";
+import { useWatchlist } from "./WatchlistContext";
 
 const Watchlist = () => {
-  const [movies, setMovies] = useState([]);
-  const user = JSON.parse(localStorage.getItem("user")); // Assuming you already have the user stored in localStorage
-  const userEmail = user?.email; // Get the user's email
-
-  useEffect(() => {
-    if (userEmail) {
-      axios
-        .post("http://localhost:5000/user-watchlist", { email: userEmail }) // Send email in request body
-        .then((response) => {
-          setMovies(response.data.watchlist || []); // Set movies from response
-        })
-        .catch((error) => {
-          console.error("Error fetching watchlist:", error);
-        });
-    }
-  }, [userEmail]);
-
-  // Handle movie removal
-  const handleRemoveMovie = async (movie) => {
-    try {
-      await handleToggleWatchlist(movie, userEmail, () => {}, true); // Set inWatchlist to true for deletion
-      setMovies((prevMovies) => prevMovies.filter((m) => m.title !== movie.title)); // Remove from local state
-    } catch (error) {
-      console.error("Error removing movie from watchlist:", error);
-    }
-  };
+  const { watchlist, removeMovieFromWatchlist } = useWatchlist();
 
   return (
     <div className="p-10">
       <div className="text-4xl font-bold text-center mb-8">Watchlist</div>
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-300">
+        <table className="min-w-full table-auto bg-white border border-gray-300 w-full">
           <thead>
             <tr>
-              <th className="py-2 px-4 border-b-2 border-gray-300 text-left">Poster</th>
-              <th className="py-2 px-4 border-b-2 border-gray-300 text-left">Title</th>
-              <th className="py-2 px-4 border-b-2 border-gray-300 text-left">Actions</th>
+              <th className="py-2 px-4 border-b-2 border-gray-300 text-left w-1/3">
+                Poster
+              </th>
+              <th className="py-2 px-4 border-b-2 border-gray-300 text-left w-1/3">
+                Title
+              </th>
+              <th className="py-2 px-4 border-b-2 border-gray-300 text-left w-1/3">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
-            {movies.map((movie, index) => (
+            {watchlist.map((movie, index) => (
               <tr key={index}>
-                <td className="py-2 px-4 border-b border-gray-300">
+                <td className="py-2 px-4 border-b border-gray-300 w-1/3">
                   <div
                     style={{
                       backgroundImage: `url(${movie.poster_url})`,
@@ -53,10 +33,12 @@ const Watchlist = () => {
                     className="h-[20vh] w-[15vh] rounded-xl bg-cover bg-center"
                   ></div>
                 </td>
-                <td className="py-2 px-4 border-b border-gray-300">{movie.title}</td>
+                <td className="font-bold py-2 px-4 border-b border-gray-300 w-1/3">
+                  {movie.title}
+                </td>
                 <td
-                  onClick={() => handleRemoveMovie(movie)} // Call remove function
-                  className="text-red-600 font-bold text-lg cursor-pointer hover:scale-105 duration-300"
+                  onClick={() => removeMovieFromWatchlist(movie)}
+                  className="py-2 px-4 border-b border-gray-300 w-1/3 text-red-600 font-bold text-lg cursor-pointer hover:scale-95 duration-300"
                 >
                   Delete
                 </td>
@@ -64,8 +46,10 @@ const Watchlist = () => {
             ))}
           </tbody>
         </table>
-        {movies.length === 0 && (
-          <div className="text-center text-lg text-gray-500">No movies in your watchlist.</div>
+        {watchlist.length === 0 && (
+          <div className="text-center text-lg text-gray-500">
+            No movies in your watchlist.
+          </div>
         )}
       </div>
     </div>

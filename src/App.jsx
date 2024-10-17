@@ -6,6 +6,7 @@ import Signup from "./Signup"; // Make sure this path is correct
 import Navbar from "./Navbar"; // Navbar component
 import Filter from "./Filter"; // New Filter component
 import Watchlist from "./Watchlist";
+import { WatchlistProvider } from "./WatchlistContext";
 import Analysis from "./Analysis";
 
 const App = () => {
@@ -21,17 +22,19 @@ const App = () => {
     <Router>
       {isLoggedIn && <Navbar setIsLoggedIn={setIsLoggedIn} />}{" "}
       {/* Conditionally render Navbar if logged in */}
-      <Routes>
-        <Route path="/" element={<Movies />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/filter" element={<Filter />} /> {/* New Filter route */}
-        <Route path="/watchlist" element={<Watchlist />} />
-        <Route path="/analysis" element={<Analysis />} />
-        <Route
-          path="/signin"
-          element={<SignIn setIsLoggedIn={setIsLoggedIn} />}
-        />
-      </Routes>
+      <WatchlistProvider>
+        <Routes>
+          <Route path="/" element={<Movies />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/filter" element={<Filter />} /> {/* New Filter route */}
+          <Route path="/watchlist" element={<Watchlist />} />
+          <Route path="/analysis" element={<Analysis />} />
+          <Route
+            path="/signin"
+            element={<SignIn setIsLoggedIn={setIsLoggedIn} />}
+          />
+        </Routes>
+      </WatchlistProvider>
     </Router>
   );
 };

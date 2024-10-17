@@ -1,8 +1,10 @@
 import React from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+import { useNavigate } from "react-router-dom";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 const Navbar = ({ setIsLoggedIn }) => {
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user")); // Get user data from localStorage
 
   // Handle Logout
   const handleLogout = () => {
@@ -12,9 +14,10 @@ const Navbar = ({ setIsLoggedIn }) => {
   };
 
   return (
-    <>
-      <nav className="bg-gray-900 text-white py-4">
-        <div className="container mx-auto flex justify-center space-x-8 text-lg">
+    <nav className="bg-gray-900 text-white py-4">
+      <div className="container mx-auto flex items-center justify-between">
+        {/* Center-aligned buttons */}
+        <div className="flex space-x-8 text-lg justify-center w-full">
           <button
             className="px-4 py-2 hover:bg-gray-700 rounded"
             onClick={() => navigate("/")}
@@ -46,8 +49,16 @@ const Navbar = ({ setIsLoggedIn }) => {
             Logout
           </button>
         </div>
-      </nav>
-    </>
+
+        {/* Right-aligned user avatar and name */}
+        <div className="flex items-center space-x-5 ml-auto">
+          <Avatar className="size-16">
+            <AvatarImage src="https://github.com/shadcn.png" />
+          </Avatar>
+          <span className="text-xl">{user?.name.charAt(0).toUpperCase() + user.name.slice(1)}</span>
+        </div>
+      </div>
+    </nav>
   );
 };
 
