@@ -6,6 +6,7 @@ import Signup from "./Signup"; // Make sure this path is correct
 import Navbar from "./Navbar"; // Navbar component
 import Filter from "./Filter"; // New Filter component
 import Watchlist from "./Watchlist";
+import Analysis from "./Analysis";
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track login status
@@ -25,6 +26,7 @@ const App = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/filter" element={<Filter />} /> {/* New Filter route */}
         <Route path="/watchlist" element={<Watchlist />} />
+        <Route path="/analysis" element={<Analysis />} />
         <Route
           path="/signin"
           element={<SignIn setIsLoggedIn={setIsLoggedIn} />}

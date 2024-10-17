@@ -35,6 +35,12 @@ const Navbar = ({ setIsLoggedIn }) => {
           </button>
           <button
             className="px-4 py-2 hover:bg-gray-700 rounded"
+            onClick={() => navigate("/analysis")}
+          >
+            Analysis
+          </button>
+          <button
+            className="px-4 py-2 hover:bg-gray-700 rounded"
             onClick={handleLogout}
           >
             Logout

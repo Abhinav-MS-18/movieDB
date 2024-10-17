@@ -2,6 +2,8 @@ from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from flask_cors import CORS
 import re
+from flask import Flask, jsonify, send_from_directory, request, render_template, redirect, url_for, flash, session
+from bson import ObjectId
 
 app = Flask(__name__)
 CORS(app)
@@ -126,6 +128,7 @@ def get_user_genres():
 
 # Endpoint to fetch user watchlist
 
+
 @app.route('/user-watchlist', methods=['POST'])
 def get_user_watchlist():
     data = request.get_json()
@@ -171,6 +174,81 @@ def remove_from_watchlist():
     users_collection.update_one(
         {"email": email}, {"$pull": {"watchlist": {"title": movie["title"]}}})
     return jsonify({"message": "Movie removed from watchlist!"}), 200
+
+
+@app.route('/analysis')
+def analysis_redirect():
+    return send_from_directory(app.static_folder, 'index.html')
+
+
+@app.route('/api/analysis')
+def api_analysis():
+
+    genre_revenue = list(collection.aggregate([
+        {"$unwind": "$genres"},
+        {"$group": {"_id": "$genres", "totalRevenue": {"$sum": "$revenue"}}},
+        {"$sort": {"totalRevenue": -1}}
+    ]))
+
+    average_genre_revenue = list(collection.aggregate([
+        {"$unwind": "$genres"},
+        {"$group": {"_id": "$genres", "averageRevenue": {"$avg": "$revenue"}}},
+        {"$sort": {"averageRevenue": -1}}
+    ]))
+
+    top_actors = list(collection.aggregate([
+        {"$unwind": "$cast"},
+        {"$group": {"_id": "$cast.name", "totalRevenue": {"$sum": "$revenue"}}},
+        {"$sort": {"totalRevenue": -1}},
+        {"$limit": 10}
+    ]))
+
+    roi_data = list(collection.aggregate([
+        {"$match": {"budget": {"$gt": 0}, "revenue": {"$gt": 0}}},
+        {"$project": {"title": 1, "budget": 1, "revenue": 1,
+                      "roi": {"$divide": ["$revenue", "$budget"]}}},
+        {"$sort": {"roi": -1}},
+        {"$limit": 10}
+    ]))
+
+    movies_per_year = list(collection.aggregate([
+        {"$match": {"release_date": {"$ne": "", "$exists": True}}},
+        {"$addFields": {"releaseDateFormatted": {"$toDate": "$release_date"}}},
+        {"$group": {"_id": {"year": {"$year": "$releaseDateFormatted"}}, "count": {"$sum": 1}}},
+        {"$sort": {"_id.year": -1}},
+        {"$limit": 30},
+
+    ]))
+
+    revenue_per_year = list(collection.aggregate([
+        {"$match": {"release_date": {"$ne": "", "$exists": True}}},
+        {"$addFields": {"releaseDateFormatted": {"$toDate": "$release_date"}}},
+        {"$group": {"_id": {"year": {"$year": "$releaseDateFormatted"}},
+                    "totalRevenue": {"$sum": "$revenue"}}},
+        {"$sort": {"_id.year": -1}},
+        {"$limit": 30}
+    ]))
+
+    def convert_object_id(data):
+        if isinstance(data, list):
+            return [convert_object_id(item) for item in data]
+        elif isinstance(data, dict):
+            return {k: convert_object_id(v) for k, v in data.items()}
+        elif isinstance(data, ObjectId):
+            return str(data)
+        else:
+            return data
+
+    response_data = {
+        "genreRevenue": convert_object_id(genre_revenue),
+        "averageGenreRevenue": convert_object_id(average_genre_revenue),
+        "topActors": convert_object_id(top_actors),
+        "roiData": convert_object_id(roi_data),
+        "moviesPerYear": convert_object_id(movies_per_year),
+        "revenuePerYear": convert_object_id(revenue_per_year)
+    }
+
+    return jsonify(response_data)
 
 
 if __name__ == '__main__':
